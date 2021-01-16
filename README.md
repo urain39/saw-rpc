@@ -1,2 +1,2 @@
 # SAW-RPC
-SAW Aria2 WebUI's Rpc Protocol Component
+SAW Aria2 WebUI's RPC Protocol Component
