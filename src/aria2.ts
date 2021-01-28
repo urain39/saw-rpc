@@ -69,10 +69,10 @@ export class ARIA2 {
     }
 
     /**
-     * 添加种子文件到 Aria2。注意：`options`需要有`uris`才会判断；
+     * 添加 torrent 到 Aria2。注意：`options`需要有`uris`才会判断；
      * `position`需要有`options`才会判断。
-     * @param torrent 种子文件内容（base64编码后）
-     * @param uris 与种子文件对应的 Web-Seeding 连接
+     * @param torrent torrent 文件内容（base64编码后）
+     * @param uris 与 torrent 文件对应的 Web-Seeding 连接
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
@@ -101,7 +101,13 @@ export class ARIA2 {
         return this.request('aria2.addTorrent', params);
     }
 
-    public addMetalink(metalink: string, options?: ARIA2Options, position?: number) {
+    /**
+     * 添加 Metalink 到 Aria2。注意：`options`需要有`uris`才会判断。
+     * @param metalink MetaLink 文件内容（base64编码后）
+     * @param options 覆盖已配置的选项
+     * @param position 该任务在下载列表中的位置
+     */
+    public addMetalink(metalink: string, options?: ARIA2Options, position?: number): Promise<JSONRPCHandlerArguments> {
         const params: JSONRPCParams = [];
 
         const secret = this._secret;
@@ -118,6 +124,8 @@ export class ARIA2 {
                 params.push(position);
             }
         }
+
+        return this.request('aria2.addMetalink', params);
     }
 }
 
