@@ -7,6 +7,10 @@ type JSONRPCHandlerArguments = ArgumentsType<JSONRPCHandler>;
 
 type JSONRPCOnNotifyArguments = ArgumentsType<typeof JSONRPC.prototype.onNotify>;
 
+
+const UNDEFINED = void 0;
+
+
 export class ARIA2 {
     private _rpcPath: string;
     private _secret: string;
@@ -14,7 +18,7 @@ export class ARIA2 {
 
     public constructor(rpcPath: string, secret: string) {
         this._rpcPath = rpcPath;
-        this._secret = secret;
+        this._secret = `token:${secret}`;
         this._jsonrpc = new JSONRPC(rpcPath);
     }
 
@@ -33,7 +37,7 @@ export class ARIA2 {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<JSONRPCHandlerArguments>(function (resolve: (value: JSONRPCHandlerArguments) => any): any {
-            jsonrpc.request(method, ...args, (...args: JSONRPCHandlerArguments) => resolve(args));
+            jsonrpc.request(method, ...args, (...args: JSONRPCHandlerArguments): any => resolve(args));
         });
     }
 
@@ -48,7 +52,7 @@ export class ARIA2 {
 
         const secret = this._secret;
         if (secret) {
-            params.push(`token:${secret}`);
+            params.push(secret);
         }
 
         params.push(uris);
@@ -56,7 +60,7 @@ export class ARIA2 {
         if (options) {
             params.push(options);
 
-            if (position) {
+            if (position !== UNDEFINED) {
                 params.push(position);
             }
         }
@@ -77,7 +81,7 @@ export class ARIA2 {
 
         const secret = this._secret;
         if (secret) {
-            params.push(`token:${secret}`);
+            params.push(secret);
         }
 
         params.push(torrent);
@@ -88,7 +92,7 @@ export class ARIA2 {
             if (options) {
                 params.push(options);
 
-                if (position) {
+                if (position !== UNDEFINED) {
                     params.push(position);
                 }
             }
@@ -96,4 +100,24 @@ export class ARIA2 {
 
         return this.request('aria2.addTorrent', params);
     }
+
+    public addMetalink(metalink: string, options?: ARIA2Options, position?: number) {
+        const params: JSONRPCParams = [];
+
+        const secret = this._secret;
+        if (secret) {
+            params.push(secret);
+        }
+
+        params.push(metalink);
+
+        if (options) {
+            params.push(options);
+
+            if (position !== UNDEFINED) {
+                params.push(position);
+            }
+        }
+    }
 }
+
