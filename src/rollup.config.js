@@ -1,11 +1,11 @@
 import { uglify } from 'rollup-plugin-uglify';
 
 export default {
-    input: 'index.js',
+    input: 'test.js',
     output: {
-        file: 'dist/jsonrpc.bundle.js',
+        file: '../dist/test.bundle.js',
         format: 'umd',
-        name: 'TINYRPC'
+        name: 'SAWRPC'
     },
     plugins: [
         uglify()
