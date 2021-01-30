@@ -2,7 +2,7 @@ import { ARIA2GID } from './common';
 
 type _ARIA2Status = {
     gid: ARIA2GID;
-    status: "active" | "waiting" | "paused" | "error" | "complete" | "removed";
+    status: 'active' | 'waiting' | 'paused' | 'error' | 'complete' | 'removed';
     totalLength: number;
     completedLength: number;
     uploadLength: number;
@@ -23,7 +23,13 @@ type _ARIA2Status = {
     dir: string;
     files: string[];
     bittorrent: {
-
+        announceList: string[];
+        comment: string;
+        creationDate: number;
+        mode: 'single' | 'multi';
+        info: {
+            name: string;
+        };
     };
     verifiedLength: number;
     verifyIntegrityPending: boolean;

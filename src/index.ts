@@ -1,15 +1,12 @@
 import { JSONRPC, JSONRPCParams, JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
-import { ARIA2GID } from './common';
+import { ARIA2GID, ARIA2RESULT } from './common';
 import { ARIA2Options } from './options';
 import { ARIA2Status } from './status';
 
 type JSONRPCRequestArguments = ArgumentsType<typeof JSONRPC.prototype.request>;
 
-type JSONRPCHandlerArguments = ArgumentsType<JSONRPCHandler>;
-
 type JSONRPCOnNotifyArguments = ArgumentsType<typeof JSONRPC.prototype.onNotify>;
 
-type ARIA2RESULT<T> = ArgumentsType<JSONRPCHandler> extends [any, ...infer R] ? [T, ...R] : any[];
 
 const UNDEFINED = void 22;
 
@@ -39,8 +36,8 @@ export class ARIA2 {
     public request(method: string, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<ARIA2RESULT<any>> {
         const jsonrpc = this._jsonrpc;
 
-        return new Promise<ARIA2RESULT<any>>(function (resolve: (value: JSONRPCHandlerArguments) => any): any {
-            jsonrpc.request(method, ...rest, (...args: JSONRPCHandlerArguments): any => resolve(args));
+        return new Promise<ARIA2RESULT<any>>(function (resolve: (value: ARIA2RESULT<any>) => any) {
+            jsonrpc.request(method, ...rest, (...args: ARIA2RESULT<any>) => resolve(args));
         });
     }
 
