@@ -1,8 +1,4 @@
-import { JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
-
 export type ARIA2Optional<T> = { [key in keyof T]?: T[key] };
-
-export type ARIA2Result<T> = ArgumentsType<JSONRPCHandler> extends [any, ...infer R] ? [T, ...R] : any[];
 
 export type ARIA2GID = string;
 

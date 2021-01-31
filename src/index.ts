@@ -1,6 +1,8 @@
-import { JSONRPC, JSONRPCParams, JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
+import { JSONRPC, JSONRPCParams, JSONRPCError, JSONRPCHandler,
+    ArgumentsType }
+from './lib/tinyrpc/index';
 import {
-    ARIA2Result, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
+    ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
     ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
 } from './common';
 import { ARIA2Options } from './options';
@@ -83,11 +85,13 @@ export class ARIA2 {
      * 底层请求方法。注意：该请求可能会被拒绝。
      * @param method 方法名称
      */
-    public request(method: string, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<ARIA2Result<any>> {
+    public request(method: string, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<any> {
         const jsonrpc = this._jsonrpc;
 
-        return new Promise<ARIA2Result<any>>(function (resolve: (value: ARIA2Result<any>) => any) {
-            jsonrpc.request(method, ...rest, (...args: ARIA2Result<any>) => resolve(args));
+        return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
+            jsonrpc.request(method, ...rest, (result, error) => {
+                error ? reject(error) : resolve(result);
+            });
         });
     }
 
@@ -97,7 +101,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addUri(uris: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addUri(uris: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, uris];
 
         if (options !== UNDEFINED) {
@@ -119,7 +123,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addTorrent(torrent: string, uris?: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addTorrent(torrent: string, uris?: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, torrent];
 
         if (uris !== UNDEFINED) {
@@ -143,7 +147,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addMetalink(metalink: string, options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addMetalink(metalink: string, options?: ARIA2Options_, position?: number): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, metalink];
 
         if (options !== UNDEFINED) {
@@ -161,7 +165,7 @@ export class ARIA2 {
      * 从 Aria2 移除一个任务。
      * @param gid 任务的标识
      */
-    public remove(gid: ARIA2GID): Promise<ARIA2Result<ARIA2GID>> {
+    public remove(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.remove', params);
@@ -171,7 +175,7 @@ export class ARIA2 {
      * 从 Aria2 **强制**移除一个任务。
      * @param gid 任务的标识
      */
-    public forceRemove(gid: ARIA2GID): Promise<ARIA2Result<ARIA2GID>> {
+    public forceRemove(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.forceRemove', params);
@@ -181,7 +185,7 @@ export class ARIA2 {
      * 暂停一个 Aria2 任务。
      * @param gid 任务的标识
      */
-    public pause(gid: ARIA2GID): Promise<ARIA2Result<ARIA2GID>> {
+    public pause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.pause', params);
@@ -190,7 +194,7 @@ export class ARIA2 {
     /**
      * 暂停所有的 Aria2 任务。
      */
-    public pauseAll(): Promise<ARIA2Result<"OK">> {
+    public pauseAll(): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.pauseAll', params);
@@ -200,7 +204,7 @@ export class ARIA2 {
      * **强制**暂停一个 Aria2 任务。
      * @param gid 任务的标识
      */
-    public forcePause(gid: ARIA2GID): Promise<ARIA2Result<ARIA2GID>> {
+    public forcePause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.forcePause', params);
@@ -209,7 +213,7 @@ export class ARIA2 {
     /**
      * **强制**暂停所有的 Aria2 任务。
      */
-    public forcePauseAll(): Promise<ARIA2Result<"OK">> {
+    public forcePauseAll(): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.forcePauseAll', params);
@@ -219,7 +223,7 @@ export class ARIA2 {
      * 取消暂停一个 Aria2 任务。
      * @param gid 任务的标识
      */
-    public unpause(gid: ARIA2GID): Promise<ARIA2Result<ARIA2GID>> {
+    public unpause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.unpause', params);
@@ -228,7 +232,7 @@ export class ARIA2 {
     /**
      * 取消暂停所有的 Aria2 任务。
      */
-    public unpauseAll(): Promise<ARIA2Result<"OK">> {
+    public unpauseAll(): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.unpauseAll', params);
@@ -239,7 +243,7 @@ export class ARIA2 {
      * @param gid 任务的标识
      * @param keys 如果提供，则表示只响应`keys`里对应的值
      */
-    public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_>> {
+    public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_> {
         const params: JSONRPCParams = [this._secret, gid];
 
         if (keys !== UNDEFINED) {
@@ -253,7 +257,7 @@ export class ARIA2 {
      * 获取一个 Aria2 任务的所有可用链接。
      * @param gid 任务标识
      */
-    public getUris(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Uri[]>> {
+    public getUris(gid: ARIA2GID): Promise<ARIA2Uri[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getUris', params);
@@ -263,7 +267,7 @@ export class ARIA2 {
      * 获取一个 Aria2 任务中的所有文件。
      * @param gid 任务标识
      */
-    public getFiles(gid: ARIA2GID): Promise<ARIA2Result<ARIA2File[]>> {
+    public getFiles(gid: ARIA2GID): Promise<ARIA2File[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getFiles', params);
@@ -273,7 +277,7 @@ export class ARIA2 {
      * 获取一个 Aria2 任务中的所有的 Peer。
      * @param gid 任务标识
      */
-    public getPeers(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Peer[]>> {
+    public getPeers(gid: ARIA2GID): Promise<ARIA2Peer[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getPeers', params);
@@ -283,7 +287,7 @@ export class ARIA2 {
      * 获取一个 Aria2 任务中所有的服务器。
      * @param gid 任务标识
      */
-    public getServers(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Server[]>> {
+    public getServers(gid: ARIA2GID): Promise<ARIA2Server[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getServers', params);
@@ -293,7 +297,7 @@ export class ARIA2 {
      * 获取 Aria2 中所有下载中的任务的状态。
      * @param keys 如果提供，则表示只响应`keys`里对应的值
      */
-    public tellActive(keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+    public tellActive(keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret];
 
         if (keys !== UNDEFINED) {
@@ -309,7 +313,7 @@ export class ARIA2 {
      * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
      * @param keys 如果提供，则表示只响应`keys`里对应的值
      */
-    public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+    public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
         if (keys !== UNDEFINED) {
@@ -325,7 +329,7 @@ export class ARIA2 {
      * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
      * @param keys 如果提供，则表示只响应`keys`里对应的值
      */
-    public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+    public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
         if (keys !== UNDEFINED) {
@@ -342,7 +346,7 @@ export class ARIA2 {
      * @param whence 从哪里开始
      * @returns 返回改变后的位置
      */
-    public changePosition(gid: ARIA2GID, offset: number, whence: 'POS_CUR' | 'POS_SET' | 'POS_END'): Promise<ARIA2Result<number>> {
+    public changePosition(gid: ARIA2GID, offset: number, whence: 'POS_CUR' | 'POS_SET' | 'POS_END'): Promise<number> {
         const params: JSONRPCParams = [this._secret, gid, offset, whence];
 
         return this.request('aria2.changePosition', params);
@@ -357,7 +361,7 @@ export class ARIA2 {
      * @param position 添加在（已删除后的）链接列表中的位置（可为0）
      * @returns 返回一个元组，第一个元素表示已删除的个数，第二个表示已添加的个数。
      */
-    public changeUri(gid: ARIA2GID, fileIndex: number, delUris: string[], addUris: string[], position?: number): Promise<ARIA2Result<[number, number]>> {
+    public changeUri(gid: ARIA2GID, fileIndex: number, delUris: string[], addUris: string[], position?: number): Promise<[number, number]> {
         const params: JSONRPCParams = [this._secret, gid, fileIndex, delUris, addUris];
 
         if (position !== UNDEFINED) {
@@ -371,7 +375,7 @@ export class ARIA2 {
      * 获取一个 Arai2 任务的选项。
      * @param gid 任务标识
      */
-    public getOption(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Options>> {
+    public getOption(gid: ARIA2GID): Promise<ARIA2Options> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getOption', params);
@@ -383,7 +387,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      */
     // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
-    public changeOption(gid: ARIA2GID, options: ARIA2Options_): Promise<ARIA2Result<"OK">> {
+    public changeOption(gid: ARIA2GID, options: ARIA2Options_): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret, gid, options];
 
         return this.request('aria2.changeOption', params);
@@ -392,7 +396,7 @@ export class ARIA2 {
     /**
      * 获取 Aria2 的全局选项。
      */
-    public getGlobalOption(): Promise<ARIA2Result<ARIA2Options>> {
+    public getGlobalOption(): Promise<ARIA2Options> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getGlobalOption', params);
@@ -403,7 +407,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      */
     // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
-    public changeGlobalOption(options: ARIA2Options_): Promise<ARIA2Result<"OK">> {
+    public changeGlobalOption(options: ARIA2Options_): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret, options];
 
         return this.request('aria2.changeGlobalOption', params);
@@ -412,17 +416,16 @@ export class ARIA2 {
     /**
      * 获取 Aria2 的全局统计信息。
      */
-    public getGlobalStat(): Promise<ARIA2Result<ARIA2GlobalStat>> {
+    public getGlobalStat(): Promise<ARIA2GlobalStat> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getGlobalStat', params);
     }
 
-
     /**
      * 清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
      */
-    public purgeDownloadResult(): Promise<ARIA2Result<"OK">> {
+    public purgeDownloadResult(): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.purgeDownloadResult', params);
@@ -432,7 +435,7 @@ export class ARIA2 {
      * 通过指定的任务标识清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
      * @param gid 任务标识
      */
-    public removeDownloadResult(gid: ARIA2GID): Promise<ARIA2Result<"OK">> {
+    public removeDownloadResult(gid: ARIA2GID): Promise<"OK"> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.purgeDownloadResult', params);
@@ -441,7 +444,7 @@ export class ARIA2 {
     /**
      * 获取 Aria2 的版本信息（包含特性）。
      */
-    public getVersion(): Promise<ARIA2Result<ARIA2Version>> {
+    public getVersion(): Promise<ARIA2Version> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getVersion', params);

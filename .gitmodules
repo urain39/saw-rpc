@@ -1,0 +1,3 @@
+[submodule "src/lib/tinyrpc"]
+	path = src/lib/tinyrpc
+	url = https://github.com/urain39/tinyrpc.js
