@@ -1,5 +1,8 @@
 import { JSONRPC, JSONRPCParams, JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
-import { ARIA2Result, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File, ARIA2Peer, ARIA2Server, ARIA2Version } from './common';
+import {
+    ARIA2Result, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
+    ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
+} from './common';
 import { ARIA2Options } from './options';
 
 
@@ -393,6 +396,46 @@ export class ARIA2 {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getGlobalOption', params);
+    }
+
+    /**
+     * 修改 Aria2 的全局选项。
+     * @param options 覆盖已配置的选项
+     */
+    // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
+    public changeGlobalOption(options: ARIA2Options_): Promise<ARIA2Result<"OK">> {
+        const params: JSONRPCParams = [this._secret, options];
+
+        return this.request('aria2.changeGlobalOption', params);
+    }
+
+    /**
+     * 获取 Aria2 的全局统计信息。
+     */
+    public getGlobalStat(): Promise<ARIA2Result<ARIA2GlobalStat>> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.getGlobalStat', params);
+    }
+
+
+    /**
+     * 清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
+     */
+    public purgeDownloadResult(): Promise<ARIA2Result<"OK">> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.purgeDownloadResult', params);
+    }
+
+    /**
+     * 通过指定的任务标识清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
+     * @param gid 任务标识
+     */
+    public removeDownloadResult(gid: ARIA2GID): Promise<ARIA2Result<"OK">> {
+        const params: JSONRPCParams = [this._secret, gid];
+
+        return this.request('aria2.purgeDownloadResult', params);
     }
 
     /**

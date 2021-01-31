@@ -76,6 +76,15 @@ export type ARIA2Server = {
     }[];
 };
 
+export type ARIA2GlobalStat = {
+    downloadSpeed: number;
+    uploadSpeed: number;
+    numActive: number;
+    numWaiting: number;
+    numStopped: number;
+    numStoppedTotal: number;
+}
+
 export type ARIA2Version = {
     version: string;
     enabledFeatures: string[];
