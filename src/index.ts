@@ -97,7 +97,7 @@ export class ARIA2 {
     public addUri(uris: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, uris];
 
-        if (options) {
+        if (options !== UNDEFINED) {
             params.push(options);
 
             if (position !== UNDEFINED) {
@@ -119,10 +119,10 @@ export class ARIA2 {
     public addTorrent(torrent: string, uris?: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, torrent];
 
-        if (uris) {
+        if (uris !== UNDEFINED) {
             params.push(uris);
 
-            if (options) {
+            if (options !== UNDEFINED) {
                 params.push(options);
 
                 if (position !== UNDEFINED) {
@@ -143,7 +143,7 @@ export class ARIA2 {
     public addMetalink(metalink: string, options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, metalink];
 
-        if (options) {
+        if (options !== UNDEFINED) {
             params.push(options);
 
             if (position !== UNDEFINED) {
@@ -239,7 +239,7 @@ export class ARIA2 {
     public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_>> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        if (keys) {
+        if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
@@ -293,7 +293,7 @@ export class ARIA2 {
     public tellActive(keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
         const params: JSONRPCParams = [this._secret];
 
-        if (keys) {
+        if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
@@ -309,7 +309,7 @@ export class ARIA2 {
     public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
-        if (keys) {
+        if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
@@ -325,7 +325,7 @@ export class ARIA2 {
     public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
-        if (keys) {
+        if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
@@ -351,13 +351,13 @@ export class ARIA2 {
      * @param fileIndex 文件索引（大于0）
      * @param delUris 需要删除的链接列表
      * @param addUris 需要添加的链接列表
-     * @param position 添加在（已删除后的）链接列表中的位置
+     * @param position 添加在（已删除后的）链接列表中的位置（可为0）
      * @returns 返回一个元组，第一个元素表示已删除的个数，第二个表示已添加的个数。
      */
     public changeUri(gid: ARIA2GID, fileIndex: number, delUris: string[], addUris: string[], position?: number): Promise<ARIA2Result<[number, number]>> {
         const params: JSONRPCParams = [this._secret, gid, fileIndex, delUris, addUris];
 
-        if (position) {
+        if (position !== UNDEFINED) {
             params.push(position);
         }
 
