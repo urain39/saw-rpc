@@ -1,6 +1,7 @@
-import { JSONRPC, JSONRPCParams, JSONRPCError, JSONRPCHandler,
-    ArgumentsType }
-from './lib/tinyrpc/index';
+import {
+    JSONRPC, JSONRPCParams, JSONRPCError, JSONRPCHandler,
+    ArgumentsType
+} from './lib/tinyrpc/index';
 import {
     ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
     ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
@@ -89,7 +90,7 @@ export class ARIA2 {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
-            jsonrpc.request(method, ...rest, (result, error) => {
+            jsonrpc.request(method, ...rest, (result: any, error?: JSONRPCError) => {
                 error ? reject(error) : resolve(result);
             });
         });
