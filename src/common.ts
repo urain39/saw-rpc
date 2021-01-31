@@ -1,5 +1,7 @@
 import { JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
 
+export type ARIA2Optional<T> = { [key in keyof T]?: T[key] };
+
 export type ARIA2Result<T> = ArgumentsType<JSONRPCHandler> extends [any, ...infer R] ? [T, ...R] : any[];
 
 export type ARIA2GID = string;
@@ -18,7 +20,7 @@ export type ARIA2File = {
     uris: ARIA2Uri[];
 };
 
-type _ARIA2Status = {
+export type ARIA2Status = {
     gid: ARIA2GID;
     status: 'active' | 'waiting' | 'paused' | 'error' | 'complete' | 'removed';
     totalLength: number;
@@ -53,8 +55,6 @@ type _ARIA2Status = {
     verifyIntegrityPending: boolean;
 };
 
-export type ARIA2Status = { [key in keyof _ARIA2Status]?: _ARIA2Status[key]; };
-
 export type ARIA2Peer = {
     peerId: number;
     ip: string;
@@ -65,4 +65,18 @@ export type ARIA2Peer = {
     downloadSpeed: number;
     uploadSpeed: number;
     seeder: boolean;
+};
+
+export type ARIA2Server = {
+    index: number;
+    servers: {
+        uri: string;
+        currentUri: string;
+        downloadSpeed: number;
+    }[];
+};
+
+export type ARIA2Version = {
+    version: string;
+    enabledFeatures: string[];
 };

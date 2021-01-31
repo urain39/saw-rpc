@@ -1,11 +1,17 @@
 import { JSONRPC, JSONRPCParams, JSONRPCHandler, ArgumentsType } from './lib/tinyrpc/index';
-import { ARIA2Result, ARIA2GID, ARIA2Status, ARIA2Uri, ARIA2File, ARIA2Peer } from './common';
+import { ARIA2Result, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File, ARIA2Peer, ARIA2Server, ARIA2Version } from './common';
 import { ARIA2Options } from './options';
 
 
 type JSONRPCRequestArguments = ArgumentsType<typeof JSONRPC.prototype.request>;
 
 type JSONRPCOnNotifyArguments = ArgumentsType<typeof JSONRPC.prototype.onNotify>;
+
+type ARIA2Status_ = ARIA2Optional<ARIA2Status>;
+
+type ARIA2Options_ = ARIA2Optional<ARIA2Options>;
+
+type ARIA2StatusKey = keyof ARIA2Status;
 
 
 const UNDEFINED = void 22;
@@ -88,7 +94,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addUri(uris: string[], options?: ARIA2Options, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addUri(uris: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, uris];
 
         if (options) {
@@ -110,7 +116,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addTorrent(torrent: string, uris?: string[], options?: ARIA2Options, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addTorrent(torrent: string, uris?: string[], options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, torrent];
 
         if (uris) {
@@ -134,7 +140,7 @@ export class ARIA2 {
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
-    public addMetalink(metalink: string, options?: ARIA2Options, position?: number): Promise<ARIA2Result<ARIA2GID>> {
+    public addMetalink(metalink: string, options?: ARIA2Options_, position?: number): Promise<ARIA2Result<ARIA2GID>> {
         const params: JSONRPCParams = [this._secret, metalink];
 
         if (options) {
@@ -230,7 +236,7 @@ export class ARIA2 {
      * @param gid 任务的标识
      * @param keys 如果提供，则表示只响应`keys`里对应的值
      */
-    public tellStatus(gid: ARIA2GID, keys?: (keyof ARIA2Status)[]): Promise<ARIA2Result<ARIA2Status>> {
+    public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_>> {
         const params: JSONRPCParams = [this._secret, gid];
 
         if (keys) {
@@ -260,9 +266,141 @@ export class ARIA2 {
         return this.request('aria2.getFiles', params);
     }
 
+    /**
+     * 获取一个 Aria2 任务中的所有的 Peer。
+     * @param gid 任务标识
+     */
     public getPeers(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Peer[]>> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.getPeers', params);
+    }
+
+    /**
+     * 获取一个 Aria2 任务中所有的服务器。
+     * @param gid 任务标识
+     */
+    public getServers(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Server[]>> {
+        const params: JSONRPCParams = [this._secret, gid];
+
+        return this.request('aria2.getServers', params);
+    }
+
+    /**
+     * 获取 Aria2 中所有下载中的任务的状态。
+     * @param keys 如果提供，则表示只响应`keys`里对应的值
+     */
+    public tellActive(keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+        const params: JSONRPCParams = [this._secret];
+
+        if (keys) {
+            params.push(keys);
+        }
+
+        return this.request('aria2.tellActive', params);
+    }
+
+    /**
+     * 获取 Aria2 中所有等待（包括暂停）的任务状态。
+     * @param offset 起始偏移量（可以为负数，表示 length + offset）
+     * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
+     * @param keys 如果提供，则表示只响应`keys`里对应的值
+     */
+    public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+        const params: JSONRPCParams = [this._secret, offset, num];
+
+        if (keys) {
+            params.push(keys);
+        }
+
+        return this.request('aria2.tellWaiting', params);
+    }
+
+    /**
+     * 获取 Aria2 中所有已停止的任务状态。
+     * @param offset 起始偏移量（可以为负数，表示 length + offset）
+     * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
+     * @param keys 如果提供，则表示只响应`keys`里对应的值
+     */
+    public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Result<ARIA2Status_[]>> {
+        const params: JSONRPCParams = [this._secret, offset, num];
+
+        if (keys) {
+            params.push(keys);
+        }
+
+        return this.request('aria2.tellStopped', params);
+    }
+
+    /**
+     * 修改一个 Aria2 任务在下载列表中的位置。
+     * @param gid 任务标识
+     * @param offset 偏移量（可以为负数）
+     * @param whence 从哪里开始
+     * @returns 返回改变后的位置
+     */
+    public changePosition(gid: ARIA2GID, offset: number, whence: 'POS_CUR' | 'POS_SET' | 'POS_END'): Promise<ARIA2Result<number>> {
+        const params: JSONRPCParams = [this._secret, gid, offset, whence];
+
+        return this.request('aria2.changePosition', params);
+    }
+
+    /**
+     * 修改一个 Aria2 任务中位于`fileIndex`位置的文件的下载链接列表。
+     * @param gid 任务标识
+     * @param fileIndex 文件索引（大于0）
+     * @param delUris 需要删除的链接列表
+     * @param addUris 需要添加的链接列表
+     * @param position 添加在（已删除后的）链接列表中的位置
+     * @returns 返回一个元组，第一个元素表示已删除的个数，第二个表示已添加的个数。
+     */
+    public changeUri(gid: ARIA2GID, fileIndex: number, delUris: string[], addUris: string[], position?: number): Promise<ARIA2Result<[number, number]>> {
+        const params: JSONRPCParams = [this._secret, gid, fileIndex, delUris, addUris];
+
+        if (position) {
+            params.push(position);
+        }
+
+        return this.request('aria2.changeUri', params);
+    }
+
+    /**
+     * 获取一个 Arai2 任务的选项。
+     * @param gid 任务标识
+     */
+    public getOption(gid: ARIA2GID): Promise<ARIA2Result<ARIA2Options>> {
+        const params: JSONRPCParams = [this._secret, gid];
+
+        return this.request('aria2.getOption', params);
+    }
+
+    /**
+     * 修改一个 Aria2 任务的选项。
+     * @param gid 任务标识
+     * @param options 覆盖已配置的选项
+     */
+    // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
+    public changeOption(gid: ARIA2GID, options: ARIA2Options_): Promise<ARIA2Result<"OK">> {
+        const params: JSONRPCParams = [this._secret, gid, options];
+
+        return this.request('aria2.changeOption', params);
+    }
+
+    /**
+     * 获取 Aria2 的全局选项。
+     */
+    public getGlobalOption(): Promise<ARIA2Result<ARIA2Options>> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.getGlobalOption', params);
+    }
+
+    /**
+     * 获取 Aria2 的版本信息（包含特性）。
+     */
+    public getVersion(): Promise<ARIA2Result<ARIA2Version>> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.getVersion', params);
     }
 }
