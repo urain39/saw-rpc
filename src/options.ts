@@ -1,4 +1,4 @@
-import { ARIA2GID } from './common';
+import { ARIA2GID, ARIA2Optional } from './common';
 
 export type ARIA2Options = {
     'all-proxy': string;
@@ -113,6 +113,6 @@ export type ARIA2Options = {
     'user-agent': string;
 };
 
-export type ARIA2OptionsWithout<T extends keyof ARIA2Options, U = ARIA2Options> = {
+export type ARIA2OptionsWithout<T extends keyof ARIA2Options, U extends ARIA2Optional<ARIA2Options>> = {
     [key in keyof U]: key extends T ? never : U[key];
 };

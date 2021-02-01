@@ -3,7 +3,7 @@ import {
     ArgumentsType
 } from './lib/tinyrpc/index';
 import {
-    ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
+    ARIA2Method, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
     ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
 } from './common';
 import { ARIA2Options, ARIA2OptionsWithout } from './options';
@@ -24,6 +24,7 @@ type ARIA2ChangeOptionBlocked =
 
 type ARIA2ChangeGlobalOptionBlocked =
     'checksum' | 'index-out' | 'out' | 'pause' | 'select-file';
+
 
 const UNDEFINED = void 22;
 
@@ -91,7 +92,7 @@ export class ARIA2 {
      * 底层请求方法。注意：该请求可能会被拒绝。
      * @param method 方法名称
      */
-    public request(method: string, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<any> {
+    public request(method: ARIA2Method, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<any> {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
