@@ -114,5 +114,5 @@ export type ARIA2Options = {
 };
 
 export type ARIA2OptionsWithout<T extends keyof ARIA2Options, U extends ARIA2Optional<ARIA2Options>> = {
-    [key in keyof U]: key extends T ? never : U[key];
+    [key in Exclude<keyof U, T>]: U[key];
 };
