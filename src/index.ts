@@ -6,7 +6,7 @@ import {
     ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
     ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
 } from './common';
-import { ARIA2Options } from './options';
+import { ARIA2Options, ARIA2OptionsWithout } from './options';
 
 
 type JSONRPCRequestArguments = ArgumentsType<typeof JSONRPC.prototype.request>;
@@ -19,6 +19,11 @@ type ARIA2Options_ = ARIA2Optional<ARIA2Options>;
 
 type ARIA2StatusKey = keyof ARIA2Status;
 
+type ARIA2ChangeOptionBlocked =
+    'dry-run' | 'metalink-base-uri' | 'parameterized-uri' | 'pause' | 'piece-length' | 'rpc-save-upload-metadata';
+
+type ARIA2ChangeGlobalOptionBlocked =
+    'checksum' | 'index-out' | 'out' | 'pause' | 'select-file';
 
 const UNDEFINED = void 22;
 
@@ -195,7 +200,7 @@ export class ARIA2 {
     /**
      * 暂停所有的 Aria2 任务。
      */
-    public pauseAll(): Promise<"OK"> {
+    public pauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.pauseAll', params);
@@ -214,7 +219,7 @@ export class ARIA2 {
     /**
      * **强制**暂停所有的 Aria2 任务。
      */
-    public forcePauseAll(): Promise<"OK"> {
+    public forcePauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.forcePauseAll', params);
@@ -233,7 +238,7 @@ export class ARIA2 {
     /**
      * 取消暂停所有的 Aria2 任务。
      */
-    public unpauseAll(): Promise<"OK"> {
+    public unpauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.unpauseAll', params);
@@ -387,8 +392,7 @@ export class ARIA2 {
      * @param gid 任务标识
      * @param options 覆盖已配置的选项
      */
-    // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
-    public changeOption(gid: ARIA2GID, options: ARIA2Options_): Promise<"OK"> {
+    public changeOption(gid: ARIA2GID, options: ARIA2OptionsWithout<ARIA2ChangeOptionBlocked, ARIA2Options_>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid, options];
 
         return this.request('aria2.changeOption', params);
@@ -407,8 +411,7 @@ export class ARIA2 {
      * 修改 Aria2 的全局选项。
      * @param options 覆盖已配置的选项
      */
-    // TODO: 这里有一些需要禁用的选项，稍后我会通过其他方法过滤掉。
-    public changeGlobalOption(options: ARIA2Options_): Promise<"OK"> {
+    public changeGlobalOption(options: ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked, ARIA2Options_>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, options];
 
         return this.request('aria2.changeGlobalOption', params);
@@ -426,7 +429,7 @@ export class ARIA2 {
     /**
      * 清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
      */
-    public purgeDownloadResult(): Promise<"OK"> {
+    public purgeDownloadResult(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.purgeDownloadResult', params);
@@ -436,7 +439,7 @@ export class ARIA2 {
      * 通过指定的任务标识清除 Aria2 内存中已完成（包含错误、已移除）的结果，用于释放内存。
      * @param gid 任务标识
      */
-    public removeDownloadResult(gid: ARIA2GID): Promise<"OK"> {
+    public removeDownloadResult(gid: ARIA2GID): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid];
 
         return this.request('aria2.purgeDownloadResult', params);
@@ -449,5 +452,14 @@ export class ARIA2 {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getVersion', params);
+    }
+
+    /**
+     * 保存当前会话到指定的会话文件。
+     */
+    public saveSession(): Promise<'OK'> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.saveSession', params);
     }
 }
