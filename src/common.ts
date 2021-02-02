@@ -1,3 +1,5 @@
+import { ARIA2ErrorCode } from './errorCode';
+
 export type ARIA2Optional<T> = { [key in keyof T]?: T[key] };
 
 export type ARIA2Method =
@@ -46,7 +48,7 @@ export type ARIA2Status = {
     pieceLength: number;
     numPieces: number;
     connections: number;
-    errorCode: number;
+    errorCode: ARIA2ErrorCode;
     errorMessage: string;
     followedBy: ARIA2GID[];
     following: ARIA2GID;
