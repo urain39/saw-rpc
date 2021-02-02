@@ -8,6 +8,11 @@ import {
 } from './common';
 import { ARIA2Options, ARIA2OptionsWithout } from './options';
 
+// 导出所有类型注解。
+export * from './common';
+export * from './options';
+export * from './errorCode';
+
 
 type ARIA2Status_ = ARIA2Optional<ARIA2Status>;
 
