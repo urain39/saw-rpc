@@ -113,6 +113,6 @@ export type ARIA2Options = {
     'user-agent': string;
 };
 
-export type ARIA2OptionsWithout<T extends keyof ARIA2Options, U extends ARIA2Options> = {
-    [key in Exclude<keyof U, T>]: U[key];
+export type ARIA2OptionsWithout<T extends keyof ARIA2Options> = {
+    [key in Exclude<keyof ARIA2Options, T>]: ARIA2Options[key];
 };

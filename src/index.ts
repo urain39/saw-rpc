@@ -393,7 +393,7 @@ export class ARIA2 {
      * @param gid 任务标识
      * @param options 覆盖已配置的选项
      */
-    public changeOption(gid: ARIA2GID, options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeOptionBlocked, ARIA2Options>>): Promise<'OK'> {
+    public changeOption(gid: ARIA2GID, options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeOptionBlocked>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid, options];
 
         return this.request('aria2.changeOption', params);
@@ -412,7 +412,7 @@ export class ARIA2 {
      * 修改 Aria2 的全局选项。
      * @param options 覆盖已配置的选项
      */
-    public changeGlobalOption(options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked, ARIA2Options>>): Promise<'OK'> {
+    public changeGlobalOption(options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, options];
 
         return this.request('aria2.changeGlobalOption', params);

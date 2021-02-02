@@ -101,10 +101,10 @@ export type ARIA2Version = {
     enabledFeatures: string[];
 };
 
-export type SessionInfo = {
-    sessionId: string;
-};
-
 export type ARIA2Event = {
     gid: ARIA2GID;
+};
+
+export type SessionInfo = {
+    sessionId: string;
 };
