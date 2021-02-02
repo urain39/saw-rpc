@@ -1,17 +1,13 @@
 import {
-    JSONRPC, JSONRPCParams, JSONRPCError, JSONRPCHandler,
-    ArgumentsType
+    JSONRPC, JSONRPCParams, JSONRPCError
 } from './lib/tinyrpc/index';
 import {
-    ARIA2Method, ARIA2GID, ARIA2Optional, ARIA2Status, ARIA2Uri, ARIA2File,
-    ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat
+    ARIA2Method, ARIA2NotifyMethod, ARIA2GID, ARIA2Optional, ARIA2Status,
+    ARIA2Uri, ARIA2File, ARIA2Peer, ARIA2Server, ARIA2Version, ARIA2GlobalStat,
+    ARIA2Event, SessionInfo
 } from './common';
 import { ARIA2Options, ARIA2OptionsWithout } from './options';
 
-
-type JSONRPCRequestArguments = ArgumentsType<typeof JSONRPC.prototype.request>;
-
-type JSONRPCOnNotifyArguments = ArgumentsType<typeof JSONRPC.prototype.onNotify>;
 
 type ARIA2Status_ = ARIA2Optional<ARIA2Status>;
 
@@ -84,19 +80,23 @@ export class ARIA2 {
     /**
      * 添加收到通知时的回调。
      */
-    public onNotify(...args: JSONRPCOnNotifyArguments): void {
-        this._jsonrpc.onNotify(...args);
+    public onNotify(notifyMethod: ARIA2NotifyMethod, notifier: (event: ARIA2Event) => any): void {
+        this._jsonrpc.onNotify(notifyMethod, function (params: JSONRPCParams) {
+            if (params !== UNDEFINED) {
+                notifier(params[0] as ARIA2Event);
+            }
+        });
     }
 
     /**
      * 底层请求方法。注意：该请求可能会被拒绝。
      * @param method 方法名称
      */
-    public request(method: ARIA2Method, ...rest: JSONRPCRequestArguments extends [string, ...infer R, JSONRPCHandler, boolean?] ? R : any[]): Promise<any> {
+    public request(method: ARIA2Method, params: JSONRPCParams): Promise<any> {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
-            jsonrpc.request(method, ...rest, (result: any, error?: JSONRPCError) => {
+            jsonrpc.request(method, params, (result: any, error?: JSONRPCError) => {
                 error ? reject(error) : resolve(result);
             });
         });
@@ -393,7 +393,7 @@ export class ARIA2 {
      * @param gid 任务标识
      * @param options 覆盖已配置的选项
      */
-    public changeOption(gid: ARIA2GID, options: ARIA2OptionsWithout<ARIA2ChangeOptionBlocked, ARIA2Options_>): Promise<'OK'> {
+    public changeOption(gid: ARIA2GID, options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeOptionBlocked, ARIA2Options>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid, options];
 
         return this.request('aria2.changeOption', params);
@@ -412,7 +412,7 @@ export class ARIA2 {
      * 修改 Aria2 的全局选项。
      * @param options 覆盖已配置的选项
      */
-    public changeGlobalOption(options: ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked, ARIA2Options_>): Promise<'OK'> {
+    public changeGlobalOption(options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked, ARIA2Options>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, options];
 
         return this.request('aria2.changeGlobalOption', params);
@@ -453,6 +453,15 @@ export class ARIA2 {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('aria2.getVersion', params);
+    }
+
+    /**
+     * 获取 Aria2 的会话信息。
+     */
+    public getSessionInfo(): Promise<SessionInfo> {
+        const params: JSONRPCParams = [this._secret];
+
+        return this.request('aria2.getSessionInfo', params);
     }
 
     /**

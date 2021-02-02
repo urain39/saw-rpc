@@ -10,6 +10,11 @@ export type ARIA2Method =
     'aria2.shutdown' | 'aria2.forceShutdown' | 'aria2.getGlobalStat' | 'aria2.saveSession' | 'system.multicall' |
     'system.listMethods' | 'system.listNotifications';
 
+export type ARIA2NotifyMethod =
+    'aria2.onDownloadStart' | 'aria2.onDownloadPause' |
+    'aria2.onDownloadStop' | 'aria2.onDownloadComplete' |
+    'aria2.onDownloadError' | 'aria2.onBtDownloadComplete';
+
 export type ARIA2GID = string;
 
 export type ARIA2Uri = {
@@ -94,4 +99,12 @@ export type ARIA2GlobalStat = {
 export type ARIA2Version = {
     version: string;
     enabledFeatures: string[];
+};
+
+export type SessionInfo = {
+    sessionId: string;
+};
+
+export type ARIA2Event = {
+    gid: ARIA2GID;
 };
