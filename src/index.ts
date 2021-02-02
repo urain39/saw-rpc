@@ -28,12 +28,20 @@ type ARIA2ChangeGlobalOptionBlocked =
 
 
 const UNDEFINED = void 22;
+const RE_PATH_SEPARATOR = /[/\\]/;
 
 
 export class ARIA2 {
     public rpcPath: string;
     private _secret: string;
     private _jsonrpc: JSONRPC;
+
+    /**
+     * 从`ARIA2File`中提取标题名。
+     */
+    public static getTitleName(file: ARIA2File, dir: string): string {
+        return file.path.slice(dir.length + (RE_PATH_SEPARATOR.test(dir.slice(-1)) ? 0 : 1)).split(RE_PATH_SEPARATOR)[0];
+    }
 
     public constructor(rpcPath: string, secret: string) {
         this.rpcPath = rpcPath;
