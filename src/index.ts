@@ -31,6 +31,19 @@ const UNDEFINED = void 22;
 const RE_DIRECTORY_SEPARATOR = /[/\\]/;
 
 
+function normalizePath(path: string): string {
+    const dirs = path.split(RE_DIRECTORY_SEPARATOR);
+
+    let newDirs: string[] = [];
+    for (const dir of dirs) {
+        if (dir.length > 0)
+            newDirs.push(dir);
+    }
+
+    return (RE_DIRECTORY_SEPARATOR.test(path.charAt(0)) ? '/' : '') + newDirs.join('/');
+}
+
+
 export class ARIA2 {
     public rpcPath: string;
     private _secret: string;
@@ -40,7 +53,10 @@ export class ARIA2 {
      * 从`ARIA2File`中提取标题名。
      */
     public static getTitleName(file: ARIA2File, dir: string): string {
-        return file.path.slice(dir.length + (RE_DIRECTORY_SEPARATOR.test(dir.slice(-1)) ? 0 : 1)).split(RE_DIRECTORY_SEPARATOR)[0];
+        const path = normalizePath(file.path);
+        const dir_ = normalizePath(dir);
+
+        return path.slice(dir_.length + 1).split(RE_DIRECTORY_SEPARATOR)[0];
     }
 
     public constructor(rpcPath: string, secret: string) {
