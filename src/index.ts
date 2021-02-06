@@ -51,6 +51,8 @@ export class ARIA2 {
 
     /**
      * 从`ARIA2File`中提取标题名。
+     * @param file Aria2 中的文件对象
+     * @param dir 存放`file`的文件夹路径
      */
     public static getTitleName(file: ARIA2File, dir: string): string {
         const path = normalizePath(file.path);
@@ -118,16 +120,17 @@ export class ARIA2 {
     }
 
     /**
-     * 底层请求方法。注意：该请求可能会被拒绝。
+     * 底层请求方法。
      * @param method 方法名称
+     * @param force 强制请求（该请求不会被 TinyRPC 拒绝，默认：`true`）
      */
-    public request(method: ARIA2Method, params: JSONRPCParams): Promise<any> {
+    public request(method: ARIA2Method, params: JSONRPCParams, force: boolean = true): Promise<any> {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
             jsonrpc.request(method, params, (result: any, error?: JSONRPCError) => {
                 error ? reject(error) : resolve(result);
-            });
+            }, force);
         });
     }
 
@@ -278,15 +281,16 @@ export class ARIA2 {
      * 获取一个 Aria2 任务的状态。
      * @param gid 任务的标识
      * @param keys 如果提供，则表示只响应`keys`里对应的值
+     * @param force 强制请求（该请求不会被 TinyRPC 拒绝，默认：`false`）
      */
-    public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_> {
+    public tellStatus(gid: ARIA2GID, keys?: ARIA2StatusKey[], force: boolean = false): Promise<ARIA2Status_> {
         const params: JSONRPCParams = [this._secret, gid];
 
         if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
-        return this.request('aria2.tellStatus', params);
+        return this.request('aria2.tellStatus', params, force);
     }
 
     /**
@@ -332,15 +336,16 @@ export class ARIA2 {
     /**
      * 获取 Aria2 中所有下载中的任务的状态。
      * @param keys 如果提供，则表示只响应`keys`里对应的值
+     * @param force 强制请求（该请求不会被 TinyRPC 拒绝，默认：`false`）
      */
-    public tellActive(keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
+    public tellActive(keys?: ARIA2StatusKey[], force: boolean = false): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret];
 
         if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
-        return this.request('aria2.tellActive', params);
+        return this.request('aria2.tellActive', params, force);
     }
 
     /**
@@ -348,15 +353,16 @@ export class ARIA2 {
      * @param offset 起始偏移量（可以为负数，表示 length + offset）
      * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
      * @param keys 如果提供，则表示只响应`keys`里对应的值
+     * @param force 强制请求（该请求不会被 TinyRPC 拒绝，默认：`false`）
      */
-    public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
+    public tellWaiting(offset: number, num: number, keys?: ARIA2StatusKey[], force: boolean = false): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
         if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
-        return this.request('aria2.tellWaiting', params);
+        return this.request('aria2.tellWaiting', params, force);
     }
 
     /**
@@ -364,15 +370,16 @@ export class ARIA2 {
      * @param offset 起始偏移量（可以为负数，表示 length + offset）
      * @param num 个数（填 Number.MAX_SAFE_INTEGER 表示获取所有）
      * @param keys 如果提供，则表示只响应`keys`里对应的值
+     * @param force 强制请求（该请求不会被 TinyRPC 拒绝，默认：`false`）
      */
-    public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[]): Promise<ARIA2Status_[]> {
+    public tellStopped(offset: Number, num: number, keys?: ARIA2StatusKey[], force: boolean = false): Promise<ARIA2Status_[]> {
         const params: JSONRPCParams = [this._secret, offset, num];
 
         if (keys !== UNDEFINED) {
             params.push(keys);
         }
 
-        return this.request('aria2.tellStopped', params);
+        return this.request('aria2.tellStopped', params, force);
     }
 
     /**

@@ -107,6 +107,11 @@ export type ARIA2Event = {
     gid: ARIA2GID;
 };
 
+export type ARIA2Error = {
+    code: ARIA2ErrorCode;
+    message: string;
+};
+
 export type SessionInfo = {
     sessionId: string;
 };
