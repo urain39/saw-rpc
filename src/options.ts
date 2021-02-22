@@ -70,6 +70,7 @@ export type ARIA2Options = {
     'https-proxy-user': string;
     'index-out': string;
     'lowest-speed-limit': string;
+    'max-concurrent-downloads': number;
     'max-connection-per-server': number;
     'max-download-limit': string;
     'max-file-not-found': number;

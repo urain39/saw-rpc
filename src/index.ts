@@ -21,7 +21,7 @@ type ARIA2Options_ = ARIA2Optional<ARIA2Options>;
 type ARIA2StatusKey = keyof ARIA2Status;
 
 type ARIA2ChangeOptionBlocked =
-    'dry-run' | 'metalink-base-uri' | 'parameterized-uri' | 'pause' | 'piece-length' | 'rpc-save-upload-metadata';
+    'dry-run' | 'metalink-base-uri' | 'parameterized-uri' | 'pause' | 'piece-length' | 'rpc-save-upload-metadata' | 'max-concurrent-downloads';
 
 type ARIA2ChangeGlobalOptionBlocked =
     'checksum' | 'index-out' | 'out' | 'pause' | 'select-file';
