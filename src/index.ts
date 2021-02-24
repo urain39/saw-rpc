@@ -21,7 +21,7 @@ type ARIA2Options_ = ARIA2Optional<ARIA2Options>;
 type ARIA2StatusKey = keyof ARIA2Status;
 
 type ARIA2ChangeOptionBlocked =
-    'dry-run' | 'metalink-base-uri' | 'parameterized-uri' | 'pause' | 'piece-length' | 'rpc-save-upload-metadata';
+    'dry-run' | 'metalink-base-uri' | 'parameterized-uri' | 'pause' | 'piece-length' | 'rpc-save-upload-metadata' | 'max-concurrent-downloads';
 
 type ARIA2ChangeGlobalOptionBlocked =
     'checksum' | 'index-out' | 'out' | 'pause' | 'select-file';
@@ -128,7 +128,7 @@ export class ARIA2 {
         const jsonrpc = this._jsonrpc;
 
         return new Promise<any>(function (resolve: (result: any) => any, reject: (error: JSONRPCError) => any) {
-            jsonrpc.request(method, params, (result: any, error?: JSONRPCError) => {
+            jsonrpc.request('aria2.' + method, params, (result: any, error?: JSONRPCError) => {
                 error ? reject(error) : resolve(result);
             }, force);
         });
@@ -151,7 +151,7 @@ export class ARIA2 {
             }
         }
 
-        return this.request('aria2.addUri', params);
+        return this.request('addUri', params);
     }
 
     /**
@@ -177,7 +177,7 @@ export class ARIA2 {
             }
         }
 
-        return this.request('aria2.addTorrent', params);
+        return this.request('addTorrent', params);
     }
 
     /**
@@ -197,7 +197,7 @@ export class ARIA2 {
             }
         }
 
-        return this.request('aria2.addMetalink', params);
+        return this.request('addMetalink', params);
     }
 
     /**
@@ -207,7 +207,7 @@ export class ARIA2 {
     public remove(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.remove', params);
+        return this.request('remove', params);
     }
 
     /**
@@ -217,7 +217,7 @@ export class ARIA2 {
     public forceRemove(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.forceRemove', params);
+        return this.request('forceRemove', params);
     }
 
     /**
@@ -227,7 +227,7 @@ export class ARIA2 {
     public pause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.pause', params);
+        return this.request('pause', params);
     }
 
     /**
@@ -236,7 +236,7 @@ export class ARIA2 {
     public pauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.pauseAll', params);
+        return this.request('pauseAll', params);
     }
 
     /**
@@ -246,7 +246,7 @@ export class ARIA2 {
     public forcePause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.forcePause', params);
+        return this.request('forcePause', params);
     }
 
     /**
@@ -255,7 +255,7 @@ export class ARIA2 {
     public forcePauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.forcePauseAll', params);
+        return this.request('forcePauseAll', params);
     }
 
     /**
@@ -265,7 +265,7 @@ export class ARIA2 {
     public unpause(gid: ARIA2GID): Promise<ARIA2GID> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.unpause', params);
+        return this.request('unpause', params);
     }
 
     /**
@@ -274,7 +274,7 @@ export class ARIA2 {
     public unpauseAll(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.unpauseAll', params);
+        return this.request('unpauseAll', params);
     }
 
     /**
@@ -290,7 +290,7 @@ export class ARIA2 {
             params.push(keys);
         }
 
-        return this.request('aria2.tellStatus', params, force);
+        return this.request('tellStatus', params, force);
     }
 
     /**
@@ -300,7 +300,7 @@ export class ARIA2 {
     public getUris(gid: ARIA2GID): Promise<ARIA2Uri[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.getUris', params);
+        return this.request('getUris', params);
     }
 
     /**
@@ -310,7 +310,7 @@ export class ARIA2 {
     public getFiles(gid: ARIA2GID): Promise<ARIA2File[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.getFiles', params);
+        return this.request('getFiles', params);
     }
 
     /**
@@ -320,7 +320,7 @@ export class ARIA2 {
     public getPeers(gid: ARIA2GID): Promise<ARIA2Peer[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.getPeers', params);
+        return this.request('getPeers', params);
     }
 
     /**
@@ -330,7 +330,7 @@ export class ARIA2 {
     public getServers(gid: ARIA2GID): Promise<ARIA2Server[]> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.getServers', params);
+        return this.request('getServers', params);
     }
 
     /**
@@ -345,7 +345,7 @@ export class ARIA2 {
             params.push(keys);
         }
 
-        return this.request('aria2.tellActive', params, force);
+        return this.request('tellActive', params, force);
     }
 
     /**
@@ -362,7 +362,7 @@ export class ARIA2 {
             params.push(keys);
         }
 
-        return this.request('aria2.tellWaiting', params, force);
+        return this.request('tellWaiting', params, force);
     }
 
     /**
@@ -379,7 +379,7 @@ export class ARIA2 {
             params.push(keys);
         }
 
-        return this.request('aria2.tellStopped', params, force);
+        return this.request('tellStopped', params, force);
     }
 
     /**
@@ -392,7 +392,7 @@ export class ARIA2 {
     public changePosition(gid: ARIA2GID, offset: number, whence: 'POS_CUR' | 'POS_SET' | 'POS_END'): Promise<number> {
         const params: JSONRPCParams = [this._secret, gid, offset, whence];
 
-        return this.request('aria2.changePosition', params);
+        return this.request('changePosition', params);
     }
 
     /**
@@ -411,7 +411,7 @@ export class ARIA2 {
             params.push(position);
         }
 
-        return this.request('aria2.changeUri', params);
+        return this.request('changeUri', params);
     }
 
     /**
@@ -421,7 +421,7 @@ export class ARIA2 {
     public getOption(gid: ARIA2GID): Promise<ARIA2Options> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.getOption', params);
+        return this.request('getOption', params);
     }
 
     /**
@@ -432,7 +432,7 @@ export class ARIA2 {
     public changeOption(gid: ARIA2GID, options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeOptionBlocked>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid, options];
 
-        return this.request('aria2.changeOption', params);
+        return this.request('changeOption', params);
     }
 
     /**
@@ -441,7 +441,7 @@ export class ARIA2 {
     public getGlobalOption(): Promise<ARIA2Options> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.getGlobalOption', params);
+        return this.request('getGlobalOption', params);
     }
 
     /**
@@ -451,7 +451,7 @@ export class ARIA2 {
     public changeGlobalOption(options: ARIA2Optional<ARIA2OptionsWithout<ARIA2ChangeGlobalOptionBlocked>>): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, options];
 
-        return this.request('aria2.changeGlobalOption', params);
+        return this.request('changeGlobalOption', params);
     }
 
     /**
@@ -460,7 +460,7 @@ export class ARIA2 {
     public getGlobalStat(): Promise<ARIA2GlobalStat> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.getGlobalStat', params);
+        return this.request('getGlobalStat', params);
     }
 
     /**
@@ -469,7 +469,7 @@ export class ARIA2 {
     public purgeDownloadResult(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.purgeDownloadResult', params);
+        return this.request('purgeDownloadResult', params);
     }
 
     /**
@@ -479,7 +479,7 @@ export class ARIA2 {
     public removeDownloadResult(gid: ARIA2GID): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret, gid];
 
-        return this.request('aria2.purgeDownloadResult', params);
+        return this.request('purgeDownloadResult', params);
     }
 
     /**
@@ -488,7 +488,7 @@ export class ARIA2 {
     public getVersion(): Promise<ARIA2Version> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.getVersion', params);
+        return this.request('getVersion', params);
     }
 
     /**
@@ -497,7 +497,7 @@ export class ARIA2 {
     public getSessionInfo(): Promise<SessionInfo> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.getSessionInfo', params);
+        return this.request('getSessionInfo', params);
     }
 
     /**
@@ -506,6 +506,6 @@ export class ARIA2 {
     public saveSession(): Promise<'OK'> {
         const params: JSONRPCParams = [this._secret];
 
-        return this.request('aria2.saveSession', params);
+        return this.request('saveSession', params);
     }
 }

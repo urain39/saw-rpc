@@ -11,17 +11,16 @@ const aria2 = new ARIA2('ws://localhost:6800/jsonrpc', 'arcticfox');
             'max-download-limit': '2M',
             'max-upload-limit': '2M'
         });
-        // result = await aria2.request('system.listMethods', undefined);
     } catch (e) {
         console.log('Error: ', e);
     }
 
-    aria2.onNotify('aria2.onDownloadStart', function (ev: ARIA2Event) {
-        console.log(`aria2.startDownload('${ev.gid}');`);
+    aria2.onNotify('onDownloadStart', function (ev: ARIA2Event) {
+        console.log(`startDownload('${ev.gid}');`);
     });
 
-    aria2.onNotify('aria2.onBtDownloadComplete', async function (ev: ARIA2Event) {
-        console.log(`aria2.btDownloadComplete('${ev.gid}');`);
+    aria2.onNotify('onBtDownloadComplete', async function (ev: ARIA2Event) {
+        console.log(`btDownloadComplete('${ev.gid}');`);
 
         const status = await aria2.tellStatus(ev.gid, ['dir', 'files']);
 
