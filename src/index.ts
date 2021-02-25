@@ -44,10 +44,52 @@ function normalizePath(path: string): string {
 }
 
 
+function _preprocess(value: string): string | number | boolean | null {
+    const l = value.length;
+
+    if (l > 0 && l <= 20) {
+        const n = Number(value);
+
+        if (n || n === 0)
+            return n;
+
+        if (value === 'true')
+            return true;
+
+        if (value === 'false')
+            return false;
+
+        if (value === 'null')
+            return null;
+    }
+
+    return value;
+}
+
+
+function preprocess(object: any): any {
+    let value: any,
+        type: string;
+
+    for (const key in object) {
+        value = object[key];
+        type = typeof value;
+
+        if (type === 'string') {
+            object[key] = _preprocess(value);
+        } else if (type === 'object') {
+            preprocess(value);
+        }
+    }
+
+    return object;
+}
+
+
 export class ARIA2 {
-    public rpcPath: string;
-    private _secret: string;
-    private _jsonrpc: JSONRPC;
+    public rpcPath!: string;
+    private _secret!: string;
+    private _jsonrpc!: JSONRPC;
 
     /**
      * 从`ARIA2File`中提取标题名。
@@ -61,49 +103,14 @@ export class ARIA2 {
         return path.slice(dir_.length + 1).split(RE_DIRECTORY_SEPARATOR)[0];
     }
 
-    public constructor(rpcPath: string, secret: string) {
+    /**
+     * 连接到 Aria2 服务器。
+     * @param rpcPath RPC 路径
+     * @param secret 用于认证的信息
+     */
+    public connect(rpcPath: string, secret: string) {
         this.rpcPath = rpcPath;
         this._secret = `token:${secret}`;
-
-        function _preprocess(value: string): string | number | boolean | null {
-            const l = value.length;
-
-            if (l > 0 && l <= 20) {
-                const n = Number(value);
-
-                if (n || n === 0)
-                    return n;
-
-                if (value === 'true')
-                    return true;
-
-                if (value === 'false')
-                    return false;
-
-                if (value === 'null')
-                    return null;
-            }
-
-            return value;
-        }
-
-        function preprocess(object: any): any {
-            let value: any,
-                type: string;
-
-            for (const key in object) {
-                value = object[key];
-                type = typeof value;
-
-                if (type === 'string') {
-                    object[key] = _preprocess(value);
-                } else if (type === 'object') {
-                    preprocess(value);
-                }
-            }
-
-            return object;
-        }
 
         this._jsonrpc = new JSONRPC(rpcPath, preprocess);
     }

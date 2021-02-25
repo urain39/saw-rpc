@@ -13,9 +13,9 @@ export type ARIA2Method =
     'system.listMethods' | 'system.listNotifications';
 
 export type ARIA2NotifyMethod =
-    'onDownloadStart' | 'onDownloadPause' |
-    'onDownloadStop' | 'onDownloadComplete' |
-    'onDownloadError' | 'onBtDownloadComplete';
+    'downloadStart' | 'downloadPause' |
+    'downloadStop' | 'downloadComplete' |
+    'downloadError' | 'btDownloadComplete';
 
 export type ARIA2GID = string;
 

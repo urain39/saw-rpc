@@ -1,7 +1,9 @@
 import { ARIA2Event } from './common';
 import { ARIA2 } from './index';
 
-const aria2 = new ARIA2('ws://localhost:6800/jsonrpc', 'arcticfox');
+const aria2 = new ARIA2();
+
+aria2.connect('ws://localhost:6800/jsonrpc', 'arcticfox');
 
 (async function () {
     let result: unknown;
@@ -15,11 +17,11 @@ const aria2 = new ARIA2('ws://localhost:6800/jsonrpc', 'arcticfox');
         console.log('Error: ', e);
     }
 
-    aria2.onNotify('onDownloadStart', function (ev: ARIA2Event) {
+    aria2.onNotify('downloadStart', function (ev: ARIA2Event) {
         console.log(`startDownload('${ev.gid}');`);
     });
 
-    aria2.onNotify('onBtDownloadComplete', async function (ev: ARIA2Event) {
+    aria2.onNotify('btDownloadComplete', async function (ev: ARIA2Event) {
         console.log(`btDownloadComplete('${ev.gid}');`);
 
         const status = await aria2.tellStatus(ev.gid, ['dir', 'files']);
