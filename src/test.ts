@@ -1,5 +1,8 @@
 import { ARIA2Event } from './common';
 import { ARIA2 } from './index';
+import { JSDOM } from 'jsdom';
+
+global.WebSocket = (new JSDOM).window.WebSocket;
 
 const aria2 = new ARIA2();
 

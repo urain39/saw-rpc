@@ -165,7 +165,7 @@ export class ARIA2 {
      * 添加 torrent 到 Aria2。注意：`options`需要有`uris`才会判断；
      * `position`需要有`options`才会判断。
      * @param torrent torrent 文件内容（base64编码后）
-     * @param uris 与 torrent 文件对应的 Web-Seeding 连接
+     * @param uris 与 torrent 文件对应的 Web-Seeding 链接
      * @param options 覆盖已配置的选项
      * @param position 该任务在下载列表中的位置
      */
@@ -514,5 +514,18 @@ export class ARIA2 {
         const params: JSONRPCParams = [this._secret];
 
         return this.request('saveSession', params);
+    }
+
+    /**
+     * 列出所有 Aria2 服务器支持的方法。
+     */
+    public listMethods(): Promise<string[]> {
+        const jsonrpc = this._jsonrpc;
+
+        return new Promise(function (resolve, reject) {
+            jsonrpc.request('system.listMethods', UNDEFINED, function (result: string[], error?: JSONRPCError) {
+                error ? reject(error) : resolve(result);
+            });
+        });
     }
 }
